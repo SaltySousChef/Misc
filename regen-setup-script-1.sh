@@ -20,11 +20,7 @@ else
   echo 'export GOROOT=/usr/local/go' >> ~/.profile
   echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
   echo 'export PATH=$PATH:/usr/local/go/bin:$GOBIN' >> ~/.profile
-
-  #source ~/.profile
   . ~/.profile
-
-  go version
 fi
 
 echo "Installing regen-ledger..."
