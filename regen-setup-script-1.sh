@@ -29,3 +29,5 @@ cd $GOPATH/src/github.com/regen-network/regen-ledger
 git fetch
 git checkout v1.0.0
 make install
+
+curl -s https://raw.githubusercontent.com/regen-network/mainnet/main/regen-1/genesis.json > ~/.regen/config/genesis.json`
