@@ -105,6 +105,9 @@ sudo -u node_runner bash << EOF
     # in their deployment guide. I have added it but left it commented out as this doesn't seem like something we want. 
     # sed -i 's#tcp://127.0.0.1:26657#tcp://0.0.0.0:26657#g' /home/node_runner/.regen/config/config.toml
     
+    # enable prometheus
+    sed -i 's/prometheus = false/prometheus = true/' /home/node_runner/.regen/config/config.toml
+    
     # add regen to systemctl and start syncing
     echo "[Unit]
     Description=regen daemon
