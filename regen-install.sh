@@ -44,8 +44,8 @@ echo 'export PATH=\$PATH:/usr/local/go/bin:\$GOBIN' >> ~/.profile
 . ~/.profile
 
 # install regen-cli
-git clone https://github.com/regen-network/regen-ledger $GOPATH/src/github.com/regen-network/regen-ledger
-cd $GOPATH/src/github.com/regen-network/regen-ledger
+git clone https://github.com/regen-network/regen-ledger \$GOPATH/src/github.com/regen-network/regen-ledger
+cd \$GOPATH/src/github.com/regen-network/regen-ledger
 git fetch
 git checkout v1.0.0
 make install
