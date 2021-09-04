@@ -28,6 +28,9 @@ sudo -u node_runner bash << EOF
 # go home to escape root
 cd ~/
 
+# define home for the session
+export HOME = /home/node_runner
+
 # install go (double escape on variables required to get them all the way there intact)
 sudo apt update
 sudo apt install build-essential jq -y
