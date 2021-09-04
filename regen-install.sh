@@ -28,9 +28,6 @@ sudo -u node_runner bash << EOF
 # go home to escape root
 cd ~/
 
-# define home for the session
-export HOME = /home/node_runner
-
 # install go (double escape on variables required to get them all the way there intact)
 sudo apt update
 sudo apt install build-essential jq -y
@@ -38,10 +35,10 @@ wget https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
 tar -xvf go1.15.6.linux-amd64.tar.gz
 sudo mv go /usr/local
 echo "" >> ~/.profile
-echo 'export GOPATH=$HOME/go' >> ~/.profile
+echo 'export GOPATH=\$HOME/go' >> ~/.profile
 echo 'export GOROOT=/usr/local/go' >> ~/.profile
-echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
-echo 'export PATH=$PATH:/usr/local/go/bin:$GOBIN' >> ~/.profile
+echo 'export GOBIN=\$GOPATH/bin' >> ~/.profile
+echo 'export PATH=\$PATH:/usr/local/go/bin:\$GOBIN' >> ~/.profile
 
 # refresh session to use go paths
 . ~/.profile
@@ -65,9 +62,9 @@ echo '#! /usr/bin/expect -f
 set PASSWORD [lindex $argv 0];
 spawn /home/node_runner/go/bin/regen keys add regen-wallet
 expect "Enter keyring passphrase:"
-send -- "$PASSWORD\r"
+send -- "\$PASSWORD\r"
 expect "Re-enter keyring passphrase:"
-send -- "$PASSWORD\r"
+send -- "\$PASSWORD\r"
 expect "$ "
 ' >> ~/key-maker.sh
 chmod 755 ~/key-maker.sh
