@@ -59,7 +59,7 @@ curl -s https://raw.githubusercontent.com/regen-network/mainnet/main/regen-1/gen
 # create keychain with random base64 password and generate primary wallet
 sudo apt install expect -y
 echo '#! /usr/bin/expect -f
-set PASSWORD [lindex $argv 0];
+set PASSWORD [lindex \$argv 0];
 spawn /home/node_runner/go/bin/regen keys add regen-wallet
 expect "Enter keyring passphrase:"
 send -- "\$PASSWORD\r"
