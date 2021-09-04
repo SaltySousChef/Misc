@@ -12,7 +12,7 @@ echo 'export GOPATH=$HOME/go' >> ~/.profile
 echo 'export GOROOT=/usr/local/go' >> ~/.profile
 echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
 echo 'export PATH=$PATH:/usr/local/go/bin:$GOBIN' >> ~/.profile
-rm https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
+rm go1.15.6.linux-amd64.tar.gz
 
 # refresh session to use go paths
 . ~/.profile
