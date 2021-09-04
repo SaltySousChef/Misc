@@ -1,4 +1,5 @@
-#!/bin/bas# wallet name is regen-wallet
+#!/bin/bash
+# wallet name is regen-wallet
 # validator name is regen-validator
 # password is generated at run time
 # backup sent to gs://node-data-dev/
