@@ -1,52 +1,25 @@
 #!/bin/bash
-# wallet name is regen-wallet
-# validator name is regen-validator
-# password is generated at run time
-# backup sent to gs://node-data-dev/
-# stop script overwriting install after first boot
-if [[ -f /etc/first_run_check ]]; then exit 0; fi
-touch /etc/first_run_check
-
-# stop on errors
-set -e
-
-# create node_runner user
-sudo useradd -m node_runner
-sudo usermod -aG sudo -s /bin/bash node_runner
-sudo adduser node_runner sudo
-sudo sh -c  "echo 'node_runner ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers"
-
-# configure local firewall
-sudo ufw enable
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow 22,26656,26657/tcp
-
-# run startup script as node_runner
-sudo -u node_runner bash $1 << EOF
-
-# go home to escape root
-cd ~/
 
 # install go (double escape on variables required to get them all the way there intact)
+cd ~/
 sudo apt update
 sudo apt install build-essential jq -y
 wget https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
 tar -xvf go1.15.6.linux-amd64.tar.gz
 sudo mv go /usr/local
 echo "" >> ~/.profile
-echo 'export GOPATH=\$HOME/go' >> ~/.profile
+echo 'export GOPATH=$HOME/go' >> ~/.profile
 echo 'export GOROOT=/usr/local/go' >> ~/.profile
-echo 'export GOBIN=\$GOPATH/bin' >> ~/.profile
-echo 'export PATH=\$PATH:/usr/local/go/bin:\$GOBIN' >> ~/.profile
+echo 'export GOBIN=$GOPATH/bin' >> ~/.profile
+echo 'export PATH=$PATH:/usr/local/go/bin:$GOBIN' >> ~/.profile
 rm https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
 
 # refresh session to use go paths
 . ~/.profile
 
 # install regen-cli
-git clone https://github.com/regen-network/regen-ledger \$GOPATH/src/github.com/regen-network/regen-ledger
-cd \$GOPATH/src/github.com/regen-network/regen-ledger
+git clone https://github.com/regen-network/regen-ledger $GOPATH/src/github.com/regen-network/regen-ledger
+cd $GOPATH/src/github.com/regen-network/regen-ledger
 git fetch
 git checkout v1.0.0
 make install
@@ -60,22 +33,22 @@ curl -s https://raw.githubusercontent.com/regen-network/mainnet/main/regen-1/gen
 # create keychain with random base64 password and generate primary wallet
 sudo apt install expect -y
 echo '#! /usr/bin/expect -f
-set PASSWORD [lindex \$argv 0];
+set PASSWORD [lindex $argv 0];
 spawn /home/node_runner/go/bin/regen keys add regen-wallet
 expect "Enter keyring passphrase:"
-send -- "\$PASSWORD\r"
+send -- "$PASSWORD\r"
 expect "Re-enter keyring passphrase:"
-send -- "\$PASSWORD\r"
+send -- "$PASSWORD\r"
 expect "$ "
 ' >> ~/key-maker.sh
 chmod 755 ~/key-maker.sh
 cd ~/
-./key-maker.sh \$(openssl rand -base64 12) >> wallet.txt
+./key-maker.sh $(openssl rand -base64 12) >> wallet.txt
 sed -i '1,2d' wallet.txt && sed -i 's/Re-enter keyring passphrase:/Keyring passphrase: /' wallet.txt
 
 # backup config and wallet to google bucket
-sudo gsutil cp -r /home/node_runner/.regen/config \$1
-sudo gsutil cp /home/node_runner/wallet.txt \$1
+sudo gsutil cp -r /home/node_runner/.regen/config $1
+sudo gsutil cp /home/node_runner/wallet.txt $1
 
 # delete file containing private key and keychain password
 rm wallet.txt
@@ -108,5 +81,4 @@ sudo -S systemctl daemon-reload
 sudo -S systemctl enable regen
 sudo -S systemctl start regen
 
-EOF
 exit
