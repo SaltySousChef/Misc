@@ -23,7 +23,7 @@ sudo ufw default allow outgoing
 sudo ufw allow 22,26656,26657/tcp
 
 # run startup script as node_runner
-sudo -u node_runner bash << EOF
+sudo -u node_runner bash $1 << EOF
 
 # go home to escape root
 cd ~/
