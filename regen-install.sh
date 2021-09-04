@@ -39,6 +39,7 @@ echo 'export GOPATH=\$HOME/go' >> ~/.profile
 echo 'export GOROOT=/usr/local/go' >> ~/.profile
 echo 'export GOBIN=\$GOPATH/bin' >> ~/.profile
 echo 'export PATH=\$PATH:/usr/local/go/bin:\$GOBIN' >> ~/.profile
+rm https://dl.google.com/go/go1.15.6.linux-amd64.tar.gz
 
 # refresh session to use go paths
 . ~/.profile
@@ -73,11 +74,11 @@ cd ~/
 sed -i '1,2d' wallet.txt && sed -i 's/Re-enter keyring passphrase:/Keyring passphrase: /' wallet.txt
 
 # backup config and wallet to google bucket
-sudo gsutil cp -r /home/node_runner/.regen/config gs://node-data-dev
-sudo gsutil cp /home/node_runner/wallet.txt gs://node-data-dev
+sudo gsutil cp -r /home/node_runner/.regen/config \$1
+sudo gsutil cp /home/node_runner/wallet.txt \$1
 
 # delete file containing private key and keychain password
-# rm wallet.txt
+rm wallet.txt
 
 # update config with peers for main chain
 sed -i '/persistent_peers =/c\persistent_peers = "69975e7afdf731a165e40449fcffc75167a084fc@104.131.169.70:26656,d35d652b6cb3bf7d6cb8d4bd7c036ea03e7be2ab@116.203.182.185:26656,ffacd3202ded6945fed12fa4fd715b1874985b8c@3.98.38.91:26656"' /home/node_runner/.regen/config/config.toml
