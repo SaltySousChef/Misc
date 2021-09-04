@@ -4,7 +4,7 @@ echo "Updating iptables configuration. This may take a few minutes..."
 
 echo "Setting up SYNPROXY to mitigate SYN flood attacks"
 sudo iptables -t raw -A PREROUTING -p tcp -m tcp --syn -j CT --notrack 
-sudo iptables -A INPUT -p tcp -m tcp -m conntrack --ctstate INVALID,UNTRACKED -j SYNPROXY --sack-perm --timestamp --wscale 7 --mss 1460 -d 9651
+sudo iptables -A INPUT -p tcp -m tcp -m conntrack --ctstate INVALID,UNTRACKED -j SYNPROXY --sack-perm --timestamp --wscale 7 --mss 1460 -d $1
 sudo iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
 
 echo "Blocking invalid packets"
