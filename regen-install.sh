@@ -17,7 +17,7 @@ echo 'export PATH=$PATH:/usr/local/go/bin:$GOBIN' >> ~/.bashrc
 rm go1.17.linux-amd64.tar.gz
 
 # refresh env
-. ~/.bashrc
+source ~/.bashrc
 
 # check paths are set
 if [ -z "$GOPATH" ]
