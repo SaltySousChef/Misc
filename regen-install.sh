@@ -7,7 +7,8 @@ sudo apt install build-essential jq -y
 sudo apt install expect -y
 wget https://golang.org/dl/go1.17.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf go1.17.linux-amd64.tar.gz
+tar -xvf go1.17.linux-amd64.tar.gz
+sudo mv go /usr/local
 echo "" >> ~/.profile
 echo 'export GOPATH=$HOME/go' >> ~/.profile
 echo 'export GOROOT=/usr/local/go' >> ~/.profile
