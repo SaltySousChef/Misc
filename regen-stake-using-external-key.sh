@@ -21,6 +21,7 @@ send -- "$PASSWORD\r"
 expect "$ "
 
 # Start the validator (needs to be fully synced)
+# To get the value for pubkey run $regen tendermint show-validator
 spawn regen tx staking create-validator --amount=$AMOUNT_TO_STAKE_IN_UREGEN \
   --pubkey=regenvalconspub1zcjduepqcaq3rusg5hm8tsee28vu3hw97jzgzmy8fcqdy6cwrtyu6mptwqfqewzgun \
   --moniker="regen-validator" \
