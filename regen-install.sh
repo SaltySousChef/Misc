@@ -9,7 +9,7 @@ wget https://golang.org/dl/go1.17.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go
 tar -xvf go1.17.linux-amd64.tar.gz
 sudo mv go /usr/local
-echo "" >> ~/.profile
+echo "" >> ~/.bashrc
 echo 'export GOPATH=$HOME/go' >> ~/.bashrc
 echo 'export GOROOT=/usr/local/go' >> ~/.bashrc
 echo 'export GOBIN=$GOPATH/bin' >> ~/.bashrc
