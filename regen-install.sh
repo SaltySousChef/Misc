@@ -76,6 +76,7 @@ After=network-online.target
 [Service]
 User=node_runner
 ExecStart=/home/node_runner/go/bin/regen start
+StandardOutput=null
 Restart=always
 RestartSec=3
 LimitNOFILE=4096
