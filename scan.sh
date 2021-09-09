@@ -1,10 +1,10 @@
 #! /bin/bash
 
-###############################################################
+##############################################################
 #
-# Start with: sudo ./scan.sh <target-ip> <p2p-port> <rpc-port>
+# Start with: sudo ./scan.sh <target-ip> <rpc-port> <p2p-port>
 #
-###############################################################
+##############################################################
 
 export IP=$1
 export RPC_PORT=$2
@@ -129,7 +129,6 @@ echo ""
 echo "Running traceroute..."
 hping3 --traceroute -V -1 $IP
 echo ""
-read -p "Press enter to continue"
 
 echo "Scan finished!"
 
