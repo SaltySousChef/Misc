@@ -116,7 +116,7 @@ sudo sed -i '/include \/etc\/nginx\/sites-enabled\// a \
             }\
         }' /etc/nginx/nginx.conf
 
-# setup ssl certificate for service uri and populate the nginx nginx
+# setup ssl certificate and populate nginx config
 sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI -n
 
 # add cron job to check daily if the cert needs to be updated
