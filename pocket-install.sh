@@ -78,12 +78,14 @@ expect "$ "
 chmod +x ~/private-key-fetcher.sh
 ./private-key-fetcher.sh $(sed 's/\r//;s/Address: //;1q;d;' wallet.txt) $(sed 's/Decrypt password: //;2q;d;' wallet.txt) $(sed 's/Encrypt password: //;3q;d;' wallet.txt) >> /dev/null
 
-# copy credentials to gs bucket
-sudo gsutil cp ~/*.json $GS_BUCKET_URL
-sudo gsutil cp wallet.txt $GS_BUCKET_URL
+# backup wallet credentials
+mkdir $SUBDOMAIN && cp ~/*.json $SUBDOMAIN && mv wallet.txt $SUBDOMAIN
 
-# remove records
-# rm ~/*.txt ~/*.json
+# copy credentials to gs bucket
+sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
+
+# remove credentials
+rm $SUBDOMAIN
 
 # enable prometheus
 sed -i 's/"Prometheus": false,/"Prometheus": true,/' ~/.pocket/config/config.json
