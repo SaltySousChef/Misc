@@ -85,7 +85,7 @@ mkdir $SUBDOMAIN && cp ~/*.json $SUBDOMAIN && mv wallet.txt $SUBDOMAIN
 sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
 
 # remove credentials
-rm $SUBDOMAIN
+rm -rf $SUBDOMAIN
 
 # enable prometheus
 sed -i 's/"Prometheus": false,/"Prometheus": true,/' ~/.pocket/config/config.json
