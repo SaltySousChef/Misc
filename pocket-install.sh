@@ -2,8 +2,6 @@
 
 ##############################################################
 #
-# Ensure SSL/TLS is set to 'Full (strict)' for the service domain in Cloudflare
-#
 # Start with: ./poacket.sh <version-tag> <service-uri-subdomain> <service-uri-domain> <cloudflare-email-address> <cloudflare-zone> <cloudflare-key> <gs-bucket-url>
 #
 ##############################################################
@@ -125,6 +123,13 @@ curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_r
      -H "Authorization: Bearer $CLOUDFLARE_KEY" \
      -H "Content-Type:application/json"\
      --data '{"proxied":true}'
+
+# set SSL/TLS to full (strict)
+curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/settings/ssl" \
+     -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
+     -H "X-Auth-Key: $CLOUDFLARE_KEY" \
+     -H "Content-Type: application/json" \
+     --data '{"value":"strict"}'
 
 # set max files
 ulimit -Sn 16384
