@@ -89,7 +89,8 @@ chmod +x ~/private-key-fetcher.sh
 ./private-key-fetcher.sh $(sed 's/\r//;s/Address: //;1q;d;' wallet.txt) $(sed 's/Decrypt password: //;2q;d;' wallet.txt) $(sed 's/Encrypt password: //;3q;d;' wallet.txt) >> /dev/null
 
 # backup wallet credentials
-mkdir $SUBDOMAIN && cp ~/*.json $SUBDOMAIN && mv wallet.txt $SUBDOMAIN
+mkdir $SUBDOMAIN && mv ~/*.json $SUBDOMAIN && mv wallet.txt $SUBDOMAIN
+cp ~/.pocket/*.json $SUBDOMAIN
 
 # copy credentials to gs bucket
 sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
