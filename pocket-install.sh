@@ -103,16 +103,15 @@ echo "[
 ]" >> ~/.pocket/config/chains.json
 
 # create temp ssl keys 
-sudo openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/key.pem -out /etc/nginx/cert.pem -days 365 -nodes -subj "/C=US/ST=NY/L=NY/O=NA/OU=NA/CN=$SUBDOMAIN.$SERVICE_URI/emailAddress=$CLOUDFLARE_EMAIL_ADDRESS"
+# sudo openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/key.pem -out /etc/nginx/cert.pem -days 365 -nodes -subj "/C=US/ST=NY/L=NY/O=NA/OU=NA/CN=$SUBDOMAIN.$SERVICE_URI/emailAddress=$CLOUDFLARE_EMAIL_ADDRESS"
 
 # add server block to nginx - ssl_certificate and key location will be rewritten by cert bot
 sudo sed -i '/include \/etc\/nginx\/sites-enabled\// a \
         \
         server {\
-            listen              443 ssl;\
-            server_name         '"$SUBDOMAIN.$SERVICE_URI"';\
-            ssl_certificate     \/etc\/nginx\/cert.pem;\
-            ssl_certificate_key \/etc\/nginx\/key.pem;\
+            listen             80;\
+            server_name        '"$SUBDOMAIN.$SERVICE_URI"';\
+            \
             location \/ {\
                 proxy_pass http:\/\/localhost:8081;\
             }\
