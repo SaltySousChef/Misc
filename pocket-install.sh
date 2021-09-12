@@ -20,6 +20,13 @@ export GS_BUCKET_URL=$7
 sudo apt update
 sudo apt install expect nginx certbot python3-certbot-nginx jq -y
 
+# configure local firewall (separate rule for 80 so it can be removed when not in use)
+sudo ufw enable
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 22,443,26656/tcp
+sudo ufw allow 80/tcp
+
 # create dns record
 export IP="$(curl ifconfig.me)"
 export DNS_ID="$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
@@ -109,7 +116,7 @@ sudo nginx -t && sudo nginx -s reload
 sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI --agree-tos --email $CLOUDFLARE_EMAIL_ADDRESS --redirect -n
 
 # add cron job to check daily if the cert needs to be updated
-(crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet") | crontab -
+(crontab -l 2>/dev/null; echo "0 12 * * * ufw allow 80/tcp && /usr/bin/certbot renew --quiet && ufw delete allow 80/tcp") | crontab -
 
 # patch dns record to enable proxy
 curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records/$DNS_ID" \
@@ -157,3 +164,8 @@ sudo mv pocket.service /lib/systemd/system/pocket.service
 sudo -S systemctl daemon-reload
 sudo -S systemctl enable pocket
 sudo -S systemctl start pocket
+
+# close port 80
+sudo ufw delete allow 80/tcp
+
+exit
