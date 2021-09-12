@@ -73,7 +73,7 @@ echo "Encrypt password: $(openssl rand -base64 12)" >> wallet.txt
 echo '#! /usr/bin/expect -f
 set ADDRESS [lindex $argv 0];
 set DECRYPT_PASSWORD [lindex $argv 1];
-set ENCRYPT_PASSWORD [lindex $argv 1];
+set ENCRYPT_PASSWORD [lindex $argv 2];
 spawn pocket accounts export $ADDRESS
 expect "Enter Decrypt Passphrase"
 send -- "$DECRYPT_PASSWORD\r"
