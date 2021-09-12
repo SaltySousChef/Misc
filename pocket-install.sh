@@ -2,7 +2,7 @@
 
 ##############################################################
 #
-# Start with: ./poacket.sh <subdomain> <service-uri> <cloudflare-email-address> <cloudflare-zone> <cloudflare-key> <gs-bucket-url>
+# Start with: ./poacket.sh <service-uri-subdomain> <service-uri-domain> <cloudflare-email-address> <cloudflare-zone> <cloudflare-key> <gs-bucket-url>
 #
 ##############################################################
 
@@ -17,7 +17,7 @@ export GS_BUCKET_URL=$6
 sudo apt update
 sudo apt install expect nginx certbot python3-certbot-nginx -y
 
-# configure dns record (once the script is complete the proxy can be enabled but ssl/tls must be set to 'full (strict)')
+# configure dns record (once the script is complete the proxy can be enabled but ssl/tls must be set to 'full (strict)' to avoid 301 errors)
 export IP="$(curl ifconfig.me)"
 curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
@@ -87,22 +87,7 @@ sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
 # remove credentials
 rm -rf $SUBDOMAIN
 
-# create relay chain config
-echo "[
-    {
-        \"id\": \"0004\",
-        \"url\": \"https://<rpc-username>:<rpc-password>@example.com\",
-        \"basic_auth\": {
-        \"username\": \"\",
-        \"password\": \"\"
-        }
-    }
-]" >> ~/.pocket/config/chains.json
-
-# create temp ssl keys 
-# sudo openssl req -x509 -newkey rsa:4096 -keyout /etc/nginx/key.pem -out /etc/nginx/cert.pem -days 365 -nodes -subj "/C=US/ST=NY/L=NY/O=NA/OU=NA/CN=$SUBDOMAIN.$SERVICE_URI/emailAddress=$CLOUDFLARE_EMAIL_ADDRESS"
-
-# add server block to nginx - ssl_certificate and key location will be rewritten by cert bot
+# add server block to nginx (certbot will modify this and add redirection/certificates)
 sudo sed -i '/include \/etc\/nginx\/sites-enabled\// a \
         \
         server {\
@@ -126,6 +111,18 @@ sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI --agree-tos --email $CLOUDFLARE_
 # set max files
 ulimit -Sn 16384
 
+# create relay chain config
+echo "[
+    {
+        \"id\": \"0004\",
+        \"url\": \"https://<rpc-username>:<rpc-password>@example.com\",
+        \"basic_auth\": {
+        \"username\": \"\",
+        \"password\": \"\"
+        }
+    }
+]" >> ~/.pocket/config/chains.json
+
 # enable prometheus
 sed -i 's/"Prometheus": false,/"Prometheus": true,/' ~/.pocket/config/config.json
 
@@ -142,7 +139,7 @@ ExecStart=$(which pocket) start --mainnet
 StandardOutput=null
 Restart=always
 RestartSec=3
-LimitNOFILE=4096
+LimitNOFILE=16384
 [Install]
 WantedBy=multi-user.target
 " > pocket.service
