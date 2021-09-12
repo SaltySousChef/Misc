@@ -17,7 +17,7 @@ export GS_BUCKET_URL=$6
 sudo apt update
 sudo apt install expect nginx certbot python3-certbot-nginx -y
 
-# configure dns record
+# configure dns record (once the script is complete the proxy can be enabled but ssl/tls must be set to 'full (strict)')
 export IP="$(curl ifconfig.me)"
 curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
@@ -87,9 +87,6 @@ sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
 # remove credentials
 rm -rf $SUBDOMAIN
 
-# enable prometheus
-sed -i 's/"Prometheus": false,/"Prometheus": true,/' ~/.pocket/config/config.json
-
 # create relay chain config
 echo "[
     {
@@ -129,7 +126,27 @@ sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI --agree-tos --email $CLOUDFLARE_
 # set max files
 ulimit -Sn 16384
 
-# start node
-echo "Starting pocket node..."
-nohup pocket start --simulateRelay >/dev/null 2>&1 &
-# nohup pocket start --seeds="03b74fa3c68356bb40d58ecc10129479b159a145@seed1.mainnet.pokt.network:20656,64c91701ea98440bc3674fdb9a99311461cdfd6f@seed2.mainnet.pokt.network:21656,0057ee693f3ce332c4ffcb499ede024c586ae37b@seed3.mainnet.pokt.network:22856,9fd99b89947c6af57cd0269ad01ecb99960177cd@seed4.mainnet.pokt.network:23856,f2a4d0ec9d50ea61db18452d191687c899c3ca42@seed5.mainnet.pokt.network:24856,f2a9705924e8d0e11fed60484da2c3d22f7daba8@seed6.mainnet.pokt.network:25856,582177fd65dd03806eeaa2e21c9049e653672c7e@seed7.mainnet.pokt.network:26856,2ea0b13ab823986cfb44292add51ce8677b899ad@seed8.mainnet.pokt.network:27856,a5f4a4cd88db9fd5def1574a0bffef3c6f354a76@seed9.mainnet.pokt.network:28856,d4039bd71d48def9f9f61f670c098b8956e52a08@seed10.mainnet.pokt.network:29856,5c133f07ed296bb9e21e3e42d5f26e0f7d2b2832@poktseed100.chainflow.io:26656,361b1936d3fbe516628ebd6a503920fc4fc0f6a7@seed.pokt.rivet.cloud:26656" --mainnet >/dev/null 2>&1 &
+# enable prometheus
+sed -i 's/"Prometheus": false,/"Prometheus": true,/' ~/.pocket/config/config.json
+
+# add seeds to config.js
+sed -i 's/"Seeds": "",/"Seeds": "03b74fa3c68356bb40d58ecc10129479b159a145@seed1.mainnet.pokt.network:20656,64c91701ea98440bc3674fdb9a99311461cdfd6f@seed2.mainnet.pokt.network:21656,0057ee693f3ce332c4ffcb499ede024c586ae37b@seed3.mainnet.pokt.network:22856,9fd99b89947c6af57cd0269ad01ecb99960177cd@seed4.mainnet.pokt.network:23856,f2a4d0ec9d50ea61db18452d191687c899c3ca42@seed5.mainnet.pokt.network:24856,f2a9705924e8d0e11fed60484da2c3d22f7daba8@seed6.mainnet.pokt.network:25856,582177fd65dd03806eeaa2e21c9049e653672c7e@seed7.mainnet.pokt.network:26856,2ea0b13ab823986cfb44292add51ce8677b899ad@seed8.mainnet.pokt.network:27856,a5f4a4cd88db9fd5def1574a0bffef3c6f354a76@seed9.mainnet.pokt.network:28856,d4039bd71d48def9f9f61f670c098b8956e52a08@seed10.mainnet.pokt.network:29856,5c133f07ed296bb9e21e3e42d5f26e0f7d2b2832@poktseed100.chainflow.io:26656,361b1936d3fbe516628ebd6a503920fc4fc0f6a7@seed.pokt.rivet.cloud:26656",/' ~/.pocket/config/config.json
+
+# create pocket daemon managed by systemctl
+echo "[Unit]
+Description=pocket daemon
+After=network-online.target
+[Service]
+User=$USER
+ExecStart=$(which pocket) start --mainnet
+StandardOutput=null
+Restart=always
+RestartSec=3
+LimitNOFILE=4096
+[Install]
+WantedBy=multi-user.target
+" > pocket.service
+sudo mv pocket.service /lib/systemd/system/pocket.service
+sudo -S systemctl daemon-reload
+sudo -S systemctl enable pocket
+sudo -S systemctl start pocket
