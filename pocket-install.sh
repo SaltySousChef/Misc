@@ -124,13 +124,6 @@ curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_r
      -H "Content-Type:application/json"\
      --data '{"proxied":true}'
 
-# set SSL/TLS to full (strict)
-curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/settings/ssl" \
-     -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
-     -H "X-Auth-Key: $CLOUDFLARE_KEY" \
-     -H "Content-Type: application/json" \
-     --data '{"value":"strict"}'
-
 # set max files
 ulimit -Sn 16384
 
