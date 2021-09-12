@@ -23,7 +23,7 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_re
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
      -H "Authorization: Bearer $CLOUDFLARE_KEY" \
      -H "Content-Type:application/json"\
-     --data '{"type":"A","name":"'"$SUBDOMAIN"'","content":"'"$IP"'","proxied":true}'
+     --data '{"type":"A","name":"'"$SUBDOMAIN"'","content":"'"$IP"'","proxied":false}'
 
 # install go and add go paths to
 sudo rm -rf /usr/local/go
