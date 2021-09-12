@@ -2,6 +2,8 @@
 
 ##############################################################
 #
+# Ensure SSL/TLS is set to 'Full (strict)' for the service domain in Cloudflare
+#
 # Start with: ./poacket.sh <version-tag> <service-uri-subdomain> <service-uri-domain> <cloudflare-email-address> <cloudflare-zone> <cloudflare-key> <gs-bucket-url>
 #
 ##############################################################
@@ -18,7 +20,7 @@ export GS_BUCKET_URL=$7
 sudo apt update
 sudo apt install expect nginx certbot python3-certbot-nginx jq -y
 
-# configure dns record (once the script is complete the proxy can be enabled but ssl/tls must be set to 'full (strict)' to avoid 301 errors)
+# create dns record
 export IP="$(curl ifconfig.me)"
 export DNS_ID="$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
@@ -109,7 +111,7 @@ sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI --agree-tos --email $CLOUDFLARE_
 # add cron job to check daily if the cert needs to be updated
 (crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet") | crontab -
 
-# patch dns record to enable proxy for service_uri
+# patch dns record to enable proxy
 curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records/$DNS_ID" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
      -H "Authorization: Bearer $CLOUDFLARE_KEY" \
@@ -119,7 +121,7 @@ curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_r
 # set max files
 ulimit -Sn 16384
 
-# create relay chain template (needs to be filled out properly prior to staking)
+# create relay chain template (needs to be filled out prior to staking)
 echo "[
     {
         \"id\": \"0004\",
