@@ -2,6 +2,8 @@
 
 ##############################################################
 #
+# SSL/TLS should be set to "Full (Strict)" in Cloudflare
+# 
 # Start with: ./poacket.sh <version-tag> <service-uri-subdomain> <service-uri-domain> <cloudflare-email-address> <cloudflare-zone> <cloudflare-key> <gs-bucket-url>
 #
 ##############################################################
@@ -18,14 +20,14 @@ export GS_BUCKET_URL=$7
 sudo apt update
 sudo apt install expect nginx certbot python3-certbot-nginx jq -y
 
-# configure local firewall (separate rule for 80 so it can be removed when not in use)
+# configure local firewall (separate rule for 80 so it can be opened and cloesd to facilitate certificate renewal)
 sudo ufw enable
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 sudo ufw allow 22,443,26656/tcp
 sudo ufw allow 80/tcp
 
-# create dns record
+# create dns record (proxy is established later after ca sertificates are issued)
 export IP="$(curl ifconfig.me)"
 export DNS_ID="$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
@@ -86,16 +88,6 @@ expect "$ "
 chmod +x ~/private-key-fetcher.sh
 ./private-key-fetcher.sh $(sed 's/\r//;s/Address: //;1q;d;' wallet.txt) $(sed 's/Decrypt password: //;2q;d;' wallet.txt) $(sed 's/Encrypt password: //;3q;d;' wallet.txt) >> /dev/null
 
-# backup wallet credentials
-mkdir $SUBDOMAIN && mv ~/*.json $SUBDOMAIN && mv wallet.txt $SUBDOMAIN
-cp ~/.pocket/*.json $SUBDOMAIN
-
-# copy credentials to gs bucket
-sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
-
-# remove credentials
-rm -rf $SUBDOMAIN
-
 # add server block to nginx (certbot will modify this and add redirection/certificates)
 sudo sed -i '/include \/etc\/nginx\/sites-enabled\// a \
         \
@@ -114,8 +106,11 @@ sudo nginx -t && sudo nginx -s reload
 # setup ssl certificate and populate nginx config
 sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI --agree-tos --email $CLOUDFLARE_EMAIL_ADDRESS --redirect -n
 
-# add cron job to check daily if the cert needs to be updated
+# add cron job to open port 80 and check daily if the cert needs to be updated
 (crontab -l 2>/dev/null; echo "0 12 * * * ufw allow 80/tcp && /usr/bin/certbot renew --quiet && ufw delete allow 80/tcp") | crontab -
+
+# close port 80
+sudo ufw delete allow 80/tcp
 
 # patch dns record to enable proxy
 curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records/$DNS_ID" \
@@ -164,7 +159,19 @@ sudo -S systemctl daemon-reload
 sudo -S systemctl enable pocket
 sudo -S systemctl start pocket
 
-# close port 80
-sudo ufw delete allow 80/tcp
+# wait a moment for node/validator key to be produced
+sleep 10
+
+# backup node credentials
+mkdir $SUBDOMAIN && mv ~/*.json $SUBDOMAIN && mv ~/wallet.txt $SUBDOMAIN
+cp ~/.pocket/*.json $SUBDOMAIN
+
+# copy credentials to gs bucket
+sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
+
+# remove credentials
+rm -rf $SUBDOMAIN
+
+echo "Setup complete! Once you have fully synced and configured relays you can start staking with 'pocket nodes stake <address> <amount> <comma-separated-chain-ids> <service-uri> mainnet 10000 false'"
 
 exit
