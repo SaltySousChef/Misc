@@ -2,28 +2,29 @@
 
 ##############################################################
 #
-# Start with: ./poacket.sh <service-uri-subdomain> <service-uri-domain> <cloudflare-email-address> <cloudflare-zone> <cloudflare-key> <gs-bucket-url>
+# Start with: ./poacket.sh <version-tag> <service-uri-subdomain> <service-uri-domain> <cloudflare-email-address> <cloudflare-zone> <cloudflare-key> <gs-bucket-url>
 #
 ##############################################################
 
-export SUBDOMAIN=$1
-export SERVICE_URI=$2
-export CLOUDFLARE_EMAIL_ADDRESS=$3
-export CLOUDFLARE_ZONE=$4
-export CLOUDFLARE_KEY=$5
-export GS_BUCKET_URL=$6
+export VERSION_TAG=$1
+export SUBDOMAIN=$2
+export SERVICE_URI=$3
+export CLOUDFLARE_EMAIL_ADDRESS=$4
+export CLOUDFLARE_ZONE=$5
+export CLOUDFLARE_KEY=$6
+export GS_BUCKET_URL=$7
 
 # install dependencies
 sudo apt update
-sudo apt install expect nginx certbot python3-certbot-nginx -y
+sudo apt install expect nginx certbot python3-certbot-nginx jq -y
 
 # configure dns record (once the script is complete the proxy can be enabled but ssl/tls must be set to 'full (strict)' to avoid 301 errors)
 export IP="$(curl ifconfig.me)"
-curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
+export DNS_ID="$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
      -H "Authorization: Bearer $CLOUDFLARE_KEY" \
      -H "Content-Type:application/json"\
-     --data '{"type":"A","name":"'"$SUBDOMAIN"'","content":"'"$IP"'","proxied":false}'
+     --data '{"type":"A","name":"'"$SUBDOMAIN"'","content":"'"$IP"'","proxied":false}' | jq -r '.result.id')"
 
 # install go and add go paths to
 sudo rm -rf /usr/local/go
@@ -41,7 +42,7 @@ rm go1.17.linux-amd64.tar.gz
 # install pocket cli
 mkdir -p $GOPATH/src/github.com/pokt-network && cd $GOPATH/src/github.com/pokt-network
 git clone https://github.com/pokt-network/pocket-core.git && cd pocket-core
-git checkout tags/RC-0.6.3.6
+git checkout tags/$VERSION_TAG
 go build -o $GOPATH/bin/pocket $GOPATH/src/github.com/pokt-network/pocket-core/app/cmd/pocket_core/main.go
 
 # create wallet with random base64 password
@@ -108,10 +109,17 @@ sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI --agree-tos --email $CLOUDFLARE_
 # add cron job to check daily if the cert needs to be updated
 (crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet") | crontab -
 
+# patch dns record to enable proxy for service_uri
+curl -X PATCH "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records/$DNS_ID" \
+     -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
+     -H "Authorization: Bearer $CLOUDFLARE_KEY" \
+     -H "Content-Type:application/json"\
+     --data '{"proxied":true}'
+
 # set max files
 ulimit -Sn 16384
 
-# create relay chain config
+# create relay chain template (needs to be filled out properly prior to staking)
 echo "[
     {
         \"id\": \"0004\",
