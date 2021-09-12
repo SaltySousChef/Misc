@@ -116,6 +116,9 @@ sudo sed -i '/include \/etc\/nginx\/sites-enabled\// a \
                 proxy_pass http:\/\/localhost:8081;\
             }\
         }' /etc/nginx/nginx.conf
+        
+# refresh nginx
+sudo nginx -t && sudo nginx -s reload
 
 # setup ssl certificate and populate nginx config
 sudo certbot --nginx -d $SUBDOMAIN.$SERVICE_URI --agree-tos --email $CLOUDFLARE_EMAIL_ADDRESS --redirect -n
