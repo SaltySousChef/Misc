@@ -116,8 +116,8 @@ echo "Setup complete!"
 echo ""
 echo "To connect to the main chain contact the flow team and request a PULL_TOKEN"
 echo ""
-echo "Once you have the token run:"
+echo "Once you have the token run: ./boot-tools/transit pull -b ./bootstrap -t <pull-token> -r $NODE_ROLE"
 echo ""
-echo "./boot-tools/transit pull -b ./bootstrap -t <pull-token> -r $NODE_ROLE"
+echo "Then you can start staking with your wallet at https://port.onflow.org/ using the infomation contained in node-info.pub.*.json which is now in you gs bucket"
 
 exit
