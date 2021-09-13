@@ -106,6 +106,9 @@ git submodule update --init --recursive
 # build
 make install-tools
 
+# create data dir
+sudo mkdir -p /var/flow/data
+
 # configure systemd
 sudo cp deploy/systemd-docker/flow-$NODE_ROLE.service /etc/systemd/system
 sudo mkdir /etc/flow
