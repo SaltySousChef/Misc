@@ -85,7 +85,7 @@ then
     exit
 elif [ "$(sha256sum ./boot-tools/transit)" != "d1ef25d67fe339e4ae5bff150fdf814e66dba3e490965d4bb965ed34ea181e03  ./boot-tools/transit" ]
 then
-    echo "Boot tools transit sha256sum doesn't match!"
+    echo "Boot-tools transit sha256sum doesn't match!"
     exit
 fi
 
