@@ -16,7 +16,7 @@ export CLOUDFLARE_ZONE=$5
 export CLOUDFLARE_KEY=$6
 export GS_BUCKET_URL=$7
 
-# configure local firewall (separate rule for 80 so it can be opened and cloesd to facilitate certificate renewal)
+# configure local firewall
 sudo ufw enable
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
@@ -34,7 +34,7 @@ else
     exit
 fi
 
-# create dns record (proxy is established later after ca sertificates are issued)
+# create dns record and add proxy
 export DNS_ID="$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
      -H "Authorization: Bearer $CLOUDFLARE_KEY" \
@@ -43,9 +43,9 @@ export DNS_ID="$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUD
 
 # install dependencies
 sudo apt update
-sudo apt install build-essential libssl-dev jq -y
+sudo apt install build-essential libssl-dev -y
 
-# configure go
+# install go
 cd /tmp
 sudo rm -rf /usr/local/go
 wget https://golang.org/dl/go1.17.linux-amd64.tar.gz
