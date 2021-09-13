@@ -118,7 +118,7 @@ sudo cp deploy/systemd-docker/runtime-conf.env /etc/flow
 sudo systemctl enable flow-$NODE_ROLE.service
 
 # backup node credentials
-mkdir ~/$SUBDOMAIN &&  cp -r ~/bootstrap/. ~/$SUBDOMAIN
+mkdir ~/$SUBDOMAIN && cp -r ~/bootstrap/. ~/$SUBDOMAIN
 sudo gsutil cp -r ~/$SUBDOMAIN $GS_BUCKET_URL
 rm -rf ~/$SUBDOMAIN
 
