@@ -96,11 +96,6 @@ mkdir ./bootstrap
 # upload public keys
 ./boot-tools/transit push -b ./bootstrap -t mainnet-12-$SUBDOMAIN -r $NODE_ROLE
 
-# backup node credentials
-mkdir $SUBDOMAIN &&  cp -r ~/bootstrap/. $SUBDOMAIN
-sudo gsutil cp -r $SUBDOMAIN $GS_BUCKET_URL
-rm -rf $SUBDOMAIN
-
 # install flow-go
 git clone https://github.com/onflow/flow-go && cd flow-go
 git pull origin master
@@ -118,6 +113,11 @@ sudo cp deploy/systemd-docker/runtime-conf.env /etc/flow
 
 # start flow
 sudo systemctl enable flow-$NODE_ROLE.service
+
+# backup node credentials
+mkdir ~/$SUBDOMAIN &&  cp -r ~/bootstrap/. ~/$SUBDOMAIN
+sudo gsutil cp -r ~/$SUBDOMAIN $GS_BUCKET_URL
+rm -rf ~/$SUBDOMAIN
 
 echo "Setup complete!"
 echo ""
