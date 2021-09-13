@@ -108,6 +108,8 @@ make install-tools
 sudo cp deploy/systemd-docker/flow-$NODE_ROLE.service /etc/systemd/system
 sudo mkdir /etc/flow
 sudo cp deploy/systemd-docker/runtime-conf.env /etc/flow
+
+# start flow
 sudo systemctl enable flow-$NODE_ROLE.service
 
 echo "Setup complete!"
