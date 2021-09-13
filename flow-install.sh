@@ -35,11 +35,11 @@ else
 fi
 
 # create dns record and add proxy
-export DNS_ID="$(curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
+curl -X POST "https://api.cloudflare.com/client/v4/zones/$CLOUDFLARE_ZONE/dns_records" \
      -H "X-Auth-Email: $CLOUDFLARE_EMAIL_ADDRESS" \
      -H "Authorization: Bearer $CLOUDFLARE_KEY" \
      -H "Content-Type:application/json"\
-     --data '{"type":"A","name":"'"$SUBDOMAIN"'","content":"'"$(curl ifconfig.me)"'","proxied":true}' | jq -r '.result.id')"
+     --data '{"type":"A","name":"'"$SUBDOMAIN"'","content":"'"$(curl ifconfig.me)"'","proxied":true}'
 
 # install dependencies
 sudo apt update
