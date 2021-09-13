@@ -91,7 +91,7 @@ fi
 
 # generate keys
 mkdir ./bootstrap
-./boot-tools/bootstrap key --address \"$SUBDOMAIN.$DOMAIN:3569\" --role $NODE_ROLE -o ./bootstrap
+./boot-tools/bootstrap key --address "$SUBDOMAIN.$DOMAIN:3569" --role $NODE_ROLE -o ./bootstrap
 
 # upload public keys
 ./boot-tools/transit push -b ./bootstrap -t mainnet-12-$SUBDOMAIN -r $NODE_ROLE
